@@ -23,7 +23,7 @@ class Neon_Sign_Customizer_PRO {
 
         // Front
         add_action('wp_enqueue_scripts', [$this,'assets']);
-        add_action('woocommerce_before_add_to_cart_button', [$this,'render'], 5);
+        add_action('wp', [$this,'setup_front']);
 
         // Cart / Order
         add_filter('woocommerce_add_cart_item_data', [$this,'cart_item_data'], 10, 3);
@@ -80,6 +80,16 @@ class Neon_Sign_Customizer_PRO {
         wp_enqueue_script('neon-pro', plugins_url('assets/js/customizer.js', __FILE__), ['jquery'], '1.2.0', true);
     }
 
+    function setup_front(){
+        if (!function_exists('is_product') || !is_product()) return;
+        global $post;
+        if(!$post) return;
+        if (get_post_meta($post->ID, self::META_ENABLED, true) !== 'yes') return;
+
+        remove_action('woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20);
+        add_action('woocommerce_before_single_product_summary', [$this,'render'], 20);
+    }
+
     function render(){
         global $product; if (!$product) return;
         if (get_post_meta($product->get_id(), self::META_ENABLED, true) !== 'yes') return;
@@ -94,11 +104,12 @@ class Neon_Sign_Customizer_PRO {
         <div id="neon-configurator" class="neon-wrap" data-base="<?php echo esc_attr($base); ?>" data-bg="<?php echo esc_attr($bg); ?>">
             <h2 class="neon-title"><?php esc_html_e('Create Your Neon Sign','neon'); ?></h2>
 
-            <div class="preview" <?php if($bg){ echo 'style="background-image:url('.esc_url($bg).')"'; } ?>>
-                <div id="previewText" class="neon-text">Let’s Create</div>
-            </div>
+            <div class="neon-flex">
+                <div class="preview" <?php if($bg){ echo 'style="background-image:url('.esc_url($bg).')"'; } ?>>
+                    <div id="previewText" class="neon-text">Let’s Create</div>
+                </div>
 
-            <div class="controls">
+                <div class="controls">
                 <label for="textInput"><?php esc_html_e('Write your text:','neon'); ?></label>
                 <input type="text" id="textInput" name="neon_text" value="Let’s Create" maxlength="<?php echo esc_attr($maxc); ?>" />
 
@@ -127,6 +138,7 @@ class Neon_Sign_Customizer_PRO {
 
                 <div class="price"><strong><?php esc_html_e('Price:','neon'); ?></strong> <span id="priceDisplay">$<?php echo esc_html(number_format((float)$base,2)); ?></span></div>
                 <input type="hidden" id="neon_estimated_price" name="neon_estimated_price" value="<?php echo esc_attr($base); ?>" />
+                </div>
             </div>
         </div>
         <?php
