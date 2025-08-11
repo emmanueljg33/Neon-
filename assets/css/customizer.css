@@ -1,5 +1,6 @@
 /* Neon configurator styles */
-#neon-customizer.nf-wrap{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#111;}
+body.single-product div.product .summary{float:none;width:100%;}
+#neon-customizer.nf-wrap{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#111;width:100%;max-width:1200px;margin:0 auto;}
 .nf-grid{display:grid;grid-template-columns:56% 44%;gap:32px;align-items:start;}
 @media(max-width:899px){.nf-grid{grid-template-columns:1fr;gap:20px;}}
 .nf-mockup{background:#333 center/cover no-repeat;border-radius:8px;display:flex;align-items:center;justify-content:center;aspect-ratio:4/3;}

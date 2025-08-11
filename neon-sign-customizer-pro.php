@@ -76,6 +76,9 @@ class Neon_Sign_Customizer_PRO {
 
     function assets(){
         if (!function_exists('is_product') || !is_product()) return;
+        global $post;
+        if(!$post) return;
+        if (get_post_meta($post->ID, self::META_ENABLED, true) !== 'yes') return;
         wp_enqueue_style('neon-pro', plugins_url('assets/css/customizer.css', __FILE__), [], '1.3.0');
         wp_enqueue_script('neon-pro', plugins_url('assets/js/customizer.js', __FILE__), ['jquery'], '1.3.0', true);
     }
