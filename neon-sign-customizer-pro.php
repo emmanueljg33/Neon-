@@ -91,10 +91,25 @@ class Neon_Sign_Customizer_PRO {
 
         remove_action('woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20);
         remove_action('woocommerce_single_product_summary', 'woocommerce_template_single_price', 10);
-        add_action('woocommerce_before_add_to_cart_button', [$this,'render'], 5);
+
+        // Render preview where the product images usually appear
+        add_action('woocommerce_before_single_product_summary', [$this,'render_mockup'], 20);
+
+        // Render the configurator panel inside the product summary
+        add_action('woocommerce_single_product_summary', [$this,'render_panel'], 5);
     }
 
-    function render(){
+    function render_mockup(){
+        global $product; if (!$product) return;
+        if (get_post_meta($product->get_id(), self::META_ENABLED, true) !== 'yes') return;
+
+        $bg = get_post_meta($product->get_id(), self::META_BG, true);
+        echo '<div class="nf-mockup"'.($bg ? ' style="background-image:url('.esc_url($bg).')"' : '').'>'; 
+        echo '<div id="nf-preview" class="nf-neon">'.esc_html__("Let's Create",'neon').'</div>';
+        echo '</div>';
+    }
+
+    function render_panel(){
         global $product; if (!$product) return;
         if (get_post_meta($product->get_id(), self::META_ENABLED, true) !== 'yes') return;
 
@@ -124,11 +139,7 @@ class Neon_Sign_Customizer_PRO {
 
         ?>
         <div id="neon-customizer" class="nf-wrap" data-base="<?php echo esc_attr($base); ?>" data-max="<?php echo esc_attr($maxc); ?>" data-bg="<?php echo esc_attr($bg); ?>" data-sizes="<?php echo esc_attr($sizes_attr); ?>">
-            <div class="nf-grid">
-                <div class="nf-mockup"<?php if($bg){ echo ' style="background-image:url('.esc_url($bg).')"'; } ?>>
-                    <div id="nf-preview" class="nf-neon">Let’s Create</div>
-                </div>
-                <div class="nf-panel">
+            <div class="nf-panel">
                     <h2 class="nf-title"><?php esc_html_e('Create your Neon Sign','neon'); ?></h2>
                     <div id="nf-price" class="nf-price">$<?php echo esc_html(number_format((float)$base,2)); ?></div>
                     <div class="nf-divider"></div>
@@ -176,7 +187,6 @@ class Neon_Sign_Customizer_PRO {
                     <input type="hidden" id="neon_color" name="neon_color" value="<?php echo esc_attr($first_color); ?>">
                     <input type="hidden" id="neon_estimated_price" name="neon_estimated_price" value="<?php echo esc_attr(number_format((float)$base,2,'.','')); ?>">
                 </div>
-            </div>
         </div>
         <?php
     }
