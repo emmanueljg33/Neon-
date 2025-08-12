@@ -48,7 +48,7 @@
     loadFont(font);
     $preview.text(display).css({
       fontFamily: font,
-      fontSize: (inches/2)+'px',
+      fontSize: (inches)+'px',
       color:'#fff',
       textShadow: glow(color)
     });
