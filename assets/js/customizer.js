@@ -2,6 +2,15 @@
   var $wrap = $('#neon-customizer');
   if(!$wrap.length) return;
 
+  // Arrange preview canvas and product summary side by side
+  var $product = $wrap.closest('.product');
+  var $mockup = $product.find('.nf-mockup');
+  var $summary = $product.find('.summary.entry-summary');
+  if($mockup.length && $summary.length){
+    $mockup.insertBefore($summary);
+    $mockup.add($summary).wrapAll('<div class="nf-product-layout"></div>');
+  }
+
   var base = parseFloat($wrap.data('base')) || 112;
   var max = parseInt($wrap.data('max'),10) || 21;
 
