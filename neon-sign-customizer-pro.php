@@ -104,7 +104,7 @@ class Neon_Sign_Customizer_PRO {
         if (get_post_meta($product->get_id(), self::META_ENABLED, true) !== 'yes') return;
 
         $bg = get_post_meta($product->get_id(), self::META_BG, true);
-        echo '<div class="woocommerce-product-gallery images nf-mockup"'.($bg ? ' style="background-image:url('.esc_url($bg).')"' : '').'>';
+        echo '<div class="nf-mockup"'.($bg ? ' style="background-image:url('.esc_url($bg).')"' : '').'>'; 
         echo '<div id="nf-preview" class="nf-neon">'.esc_html__("Let's Create",'neon').'</div>';
         echo '</div>';
     }
