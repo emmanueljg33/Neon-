@@ -29,6 +29,7 @@ class Neon_Sign_Customizer_PRO {
         add_filter('woocommerce_add_cart_item_data', [$this,'cart_item_data'], 10, 3);
         add_filter('woocommerce_get_item_data', [$this,'cart_line_meta'], 10, 2);
         add_action('woocommerce_checkout_create_order_line_item', [$this,'order_item_meta'], 10, 4);
+        add_action('woocommerce_after_order_itemmeta', [$this,'admin_order_image'], 10, 3);
         add_action('woocommerce_before_calculate_totals', [$this,'override_price'], 10);
     }
 
@@ -186,13 +187,14 @@ class Neon_Sign_Customizer_PRO {
                     <input type="hidden" id="neon_font" name="neon_font" value="<?php echo esc_attr($first_font); ?>">
                     <input type="hidden" id="neon_color" name="neon_color" value="<?php echo esc_attr($first_color); ?>">
                     <input type="hidden" id="neon_estimated_price" name="neon_estimated_price" value="<?php echo esc_attr(number_format((float)$base,2,'.','')); ?>">
+                    <input type="hidden" id="neon_preview" name="neon_preview" value="">
                 </div>
         </div>
         <?php
     }
 
     function cart_item_data($data, $product_id, $variation_id){
-        $fields = ['neon_text','neon_width_in','neon_font','neon_color','neon_estimated_price'];
+        $fields = ['neon_text','neon_width_in','neon_font','neon_color','neon_estimated_price','neon_preview'];
         $has = false; foreach($fields as $f){ if(isset($_POST[$f]) && $_POST[$f] !== ''){ $has=true; break; } }
         if(!$has) return $data;
 
@@ -202,6 +204,7 @@ class Neon_Sign_Customizer_PRO {
             'font'  => sanitize_text_field($_POST['neon_font'] ?? ''),
             'color' => sanitize_hex_color($_POST['neon_color'] ?? '#ff00ff'),
             'price' => (float) wc_format_decimal($_POST['neon_estimated_price'] ?? 0),
+            'image' => sanitize_textarea_field($_POST['neon_preview'] ?? ''),
         ];
         $data['unique_key'] = md5(json_encode($data['neon']).microtime());
         return $data;
@@ -222,6 +225,17 @@ class Neon_Sign_Customizer_PRO {
             foreach(['text'=>'Neon Text','size'=>'Neon Width (in)','color'=>'Neon Color','font'=>'Neon Font'] as $k=>$label){
                 if(isset($values['neon'][$k])) $item->add_meta_data($label, $values['neon'][$k]);
             }
+            if(!empty($values['neon']['image'])){
+                $item->add_meta_data('_neon_preview', $values['neon']['image']);
+            }
+        }
+    }
+
+    function admin_order_image($item_id, $item, $product){
+        if(!is_admin()) return;
+        $img = wc_get_order_item_meta($item_id, '_neon_preview', true);
+        if($img){
+            echo '<p><strong>'.esc_html__('Neon Preview','neon').':</strong><br><img src="'.esc_attr($img).'" style="max-width:200px;height:auto;"></p>';
         }
     }
 
