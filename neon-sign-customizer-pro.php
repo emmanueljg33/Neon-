@@ -97,8 +97,8 @@ class Neon_Sign_Customizer_PRO {
         // Render preview where the product images usually appear
         add_action('woocommerce_before_single_product_summary', [$this,'render_mockup'], 20);
 
-        // Render the configurator panel inside the product summary
-        add_action('woocommerce_single_product_summary', [$this,'render_panel'], 5);
+        // Render the configurator panel inside the add to cart form
+        add_action('woocommerce_before_add_to_cart_button', [$this,'render_panel'], 5);
     }
 
     function render_mockup(){
