@@ -23,6 +23,7 @@
   var $fHidden = $('#neon_font');
   var $cHidden = $('#neon_color');
   var $pHidden = $('#neon_estimated_price');
+  var $imgHidden = $('#neon_preview');
 
   function sanitize(str){
     return str.replace(/[^\x20-\x7E\n]/g,'');
@@ -64,6 +65,27 @@
     var price = base + (inches*0.5) + (len*2);
     $price.text('$'+price.toFixed(2));
     $pHidden.val(price.toFixed(2));
+  }
+
+  function capture(){
+    var canvas=document.createElement('canvas');
+    canvas.width=800;
+    canvas.height=400;
+    var ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    var text = sanitize($textarea.val()).trim() || "Let's Create";
+    var inches = parseInt($wHidden.val(),10) || 0;
+    var font = $fHidden.val();
+    var color = $cHidden.val();
+    loadFont(font);
+    ctx.fillStyle='#fff';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.font=(inches*2)+'px '+font;
+    ctx.shadowColor=color;
+    ctx.shadowBlur=20;
+    ctx.fillText(text, canvas.width/2, canvas.height/2);
+    $imgHidden.val(canvas.toDataURL('image/png'));
   }
 
   var debounceTimer;
@@ -109,6 +131,10 @@
   navKeys('#nf-colors','button');
 
   $textarea.on('input', debouncedUpdate);
+
+  $('form.cart').on('submit', function(){
+    capture();
+  });
 
   // preload first two fonts
   loadFont($('#nf-fonts button').eq(0).data('font')||'');
