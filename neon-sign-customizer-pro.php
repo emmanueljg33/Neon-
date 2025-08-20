@@ -30,6 +30,7 @@ class Neon_Sign_Customizer_PRO {
         add_filter('woocommerce_get_item_data', [$this,'cart_line_meta'], 10, 2);
         add_action('woocommerce_checkout_create_order_line_item', [$this,'order_item_meta'], 10, 4);
         add_action('woocommerce_after_order_itemmeta', [$this,'admin_order_image'], 10, 3);
+        add_filter('woocommerce_hidden_order_itemmeta', [$this,'hide_admin_meta']);
         add_action('woocommerce_before_calculate_totals', [$this,'override_price'], 10);
     }
 
@@ -215,6 +216,7 @@ class Neon_Sign_Customizer_PRO {
             $n=$cart_item['neon'];
             $item_data[]=['key'=>__('Text','neon'),'value'=>$n['text']];
             $item_data[]=['key'=>__('Width','neon'),'value'=>$n['size'].' in'];
+            $item_data[]=['key'=>__('Font','neon'),'value'=>$n['font']];
             $item_data[]=['key'=>__('Color','neon'),'value'=>$n['color']];
         }
         return $item_data;
@@ -231,11 +233,32 @@ class Neon_Sign_Customizer_PRO {
         }
     }
 
+    function hide_admin_meta($hidden){
+        if(is_admin()){
+            $hidden = array_merge($hidden, ['Neon Text','Neon Width (in)','Neon Color','Neon Font']);
+        }
+        return $hidden;
+    }
+
     function admin_order_image($item_id, $item, $product){
         if(!is_admin()) return;
-        $img = wc_get_order_item_meta($item_id, '_neon_preview', true);
-        if($img){
-            echo '<p><strong>'.esc_html__('Neon Preview','neon').':</strong><br><img src="'.esc_attr($img).'" style="max-width:200px;height:auto;"></p>';
+        $img   = wc_get_order_item_meta($item_id, '_neon_preview', true);
+        $text  = wc_get_order_item_meta($item_id, 'Neon Text', true);
+        $font  = wc_get_order_item_meta($item_id, 'Neon Font', true);
+        $size  = wc_get_order_item_meta($item_id, 'Neon Width (in)', true);
+        $color = wc_get_order_item_meta($item_id, 'Neon Color', true);
+        if($img || $text || $font || $size || $color){
+            echo '<div class="nf-admin-meta">';
+            if($img){
+                echo '<p><strong>'.esc_html__('Neon Preview','neon').':</strong><br><img src="'.esc_attr($img).'" style="max-width:200px;height:auto;"></p>';
+            }
+            echo '<ul style="margin:0 0 1em 1.5em;padding:0;list-style:disc;">';
+            if($text)  echo '<li><strong>'.esc_html__('Text','neon').':</strong> '.esc_html($text).'</li>';
+            if($font)  echo '<li><strong>'.esc_html__('Font','neon').':</strong> '.esc_html($font).'</li>';
+            if($size)  echo '<li><strong>'.esc_html__('Width','neon').':</strong> '.esc_html($size).' in</li>';
+            if($color) echo '<li><strong>'.esc_html__('Color','neon').':</strong> '.esc_html($color).'</li>';
+            echo '</ul>';
+            echo '</div>';
         }
     }
 
