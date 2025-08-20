@@ -68,23 +68,31 @@
   }
 
   function capture(){
-    var canvas=document.createElement('canvas');
-    canvas.width=800;
-    canvas.height=400;
-    var ctx=canvas.getContext('2d');
-    ctx.clearRect(0,0,canvas.width,canvas.height);
     var text = sanitize($textarea.val()).trim() || "Let's Create";
     var inches = parseInt($wHidden.val(),10) || 0;
     var font = $fHidden.val();
     var color = $cHidden.val();
     loadFont(font);
-    ctx.fillStyle='#fff';
+    var size = (inches*2);
+
+    var canvas=document.createElement('canvas');
+    var ctx=canvas.getContext('2d');
+    ctx.font=size+'px '+font;
+    var metrics=ctx.measureText(text);
+    var pad=20;
+    var w=Math.ceil(metrics.width+pad*2);
+    var h=Math.ceil((metrics.actualBoundingBoxAscent+metrics.actualBoundingBoxDescent)+pad*2);
+    canvas.width=w;
+    canvas.height=h;
+    ctx.font=size+'px '+font;
     ctx.textAlign='center';
     ctx.textBaseline='middle';
-    ctx.font=(inches*2)+'px '+font;
+    ctx.fillStyle='#000';
+    ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#fff';
     ctx.shadowColor=color;
     ctx.shadowBlur=20;
-    ctx.fillText(text, canvas.width/2, canvas.height/2);
+    ctx.fillText(text,w/2,h/2);
     $imgHidden.val(canvas.toDataURL('image/png'));
   }
 
